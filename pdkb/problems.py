@@ -1,5 +1,5 @@
 
-import os, time
+import os, time, json
 
 from pdkb.test.utils import read_file, write_file, run_command, parse_output_ipc
 
@@ -335,6 +335,11 @@ class ValidGeneration(Problem):
         self.plan = parse_output_ipc('pdkb-plan.txt')
 
         print("Plan Length: %d\n" % len(self.plan.actions))
+        with open("output.json", "r") as f:
+            output = json.load(f)
+            output["plan_length"] = len(self.plan.actions)
+        with open("output.json", "w") as f:
+            json.dump(output, f)
 
 
     def output_solution(self):
@@ -503,6 +508,15 @@ class Domain:
         print("# Acts: %d" % len(self.actions))
         print("# Effs: %d" % sum([a.num_effs() for a in self.actions]))
         print("Depth: %d" % self.depth)
+        with open("output.json", "r") as f:
+            output = json.load(f)
+            output["agents"] = len(self.agents)
+            output["props"] = len(PROPS)
+            output["acts"] = len(self.actions)
+            output["effs"] = sum([a.num_effs() for a in self.actions])
+            output["depth"] = self.depth
+        with open("output.json", "w") as f:
+            json.dump(output, f)
 
         for (key, rml) in sorted([(str(r), r) for r in PROPS]):
             to_ret += "        (%s)\n" % rml.pddl()
